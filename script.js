@@ -1,91 +1,162 @@
 "use strict";
 
-// controls the gameplay
+function Cell() {
+  // initialize the value
+  let value = 0;
+
+  // changes the player marker based on activePlayer
+  const addMarker = (marker) => (value = marker);
+
+  // retrieves the current value
+  const getValue = () => value;
+
+  // gives global access to variables
+  return { addMarker, getValue };
+}
+
 function Gameboard() {
-  /* defines the size of the board */
+  // define the size of the board
   const rows = 3;
   const columns = 3;
   const board = [];
 
-  /* creates a 2D board 
-      1. loop through the board array to create rows
-      2. create game spaces (columns) for each row
-  */
+  // loop through to create the game board
   for (let i = 0; i < rows; i++) {
     board[i] = [];
     for (let j = 0; j < columns; j++) {
-      board[i].push("x");
+      board[i].push(Cell());
     }
   }
 
-  /* get the board's current layout */
+  // gets the current value of the board
   const getBoard = () => board;
 
-  /* place marker on the board 
-      1. IF game space is empty, add marker
-      2. switch player and marker
-      3. IF game space is occupied, send message to player
-          a. keep layer and marker the same
-  */
-  const addMarker = (column, player) => {};
+  const printBoard = () => {
+    const boardWithCellValues = board.map((row) =>
+      row.map((cell) => cell.getValue()),
+    );
+    console.log(boardWithCellValues);
+  };
 
-  /* print the board's current layout 
-      1. export the global variables
-  */
-  console.log(board);
+  // initialize the game board
+  const resetBoard = () => {
+    board.length = 0;
+    for (let i = 0; i < rows; i++) {
+      board[i] = [];
+      for (let j = 0; j < columns; j++) {
+        board[i].push(Cell());
+      }
+    }
+  };
+
+  return { getBoard, printBoard, resetBoard };
 }
 
-Gameboard();
-
-// controls the flow of the game
 function GameController() {
-  // create game space to hold value
-  const value = "";
-
-  // give players option to select a marker
-
-  // store players information in an object
+  // defines the players object
   const players = [
     {
-      player: "playerOne",
-      score: 0,
+      name: "Player 1",
       marker: "X",
     },
+
     {
-      player: "playerTwo",
-      score: 0,
+      name: "Player 2",
       marker: "O",
     },
   ];
 
-  /* start button 
-      1. BOTH players must select a marker
-      2. IF player 1 selects 'X', then player 2 is 'O'
-      3. randomly select which player moves first
-      4. announce which player moves first
-  
-  */
+  // allows access to global variables
+  const board = Gameboard();
 
-  // keep track of which player's turn it is
+  // defines the winning conditions
+  let gameSpaces = board.getBoard();
+
+  let winningConditions = [
+    [gameSpaces[0][0], gameSpaces[0][1], gameSpaces[0][2]],
+    [gameSpaces[1][0], gameSpaces[1][1], gameSpaces[1][2]],
+    [gameSpaces[2][0], gameSpaces[2][1], gameSpaces[2][2]],
+    [gameSpaces[0][0], gameSpaces[1][0], gameSpaces[2][0]],
+    [gameSpaces[0][1], gameSpaces[1][1], gameSpaces[2][1]],
+    [gameSpaces[0][2], gameSpaces[1][2], gameSpaces[2][2]],
+    [gameSpaces[0][0], gameSpaces[1][1], gameSpaces[2][2]],
+    [gameSpaces[0][2], gameSpaces[1][1], gameSpaces[2][0]],
+  ];
+
+  // selects the activePlayer
   let activePlayer = players[0];
 
-  activePlayer = activePlayer === players[0] ? players[1] : players[0];
-  console.log(activePlayer);
-  ``;
-  /* keep track of the round 
-      1. for three rounds
-      2. IF player has more wins, send congratulatory message
-      3. IF players tied, send message
-  */
-  // check to see if there are three identical markers in a row
-  /* if three markers in a rows
-      1. switch player
-      2. change round
-  */
-  /* reset button 
-  // reset player marker to default
-  // reset player 1 to default
-  // reset round back to 0
-  */
-  return { activePlayer };
+  // switch activePlayer
+  const switchPlayerTurn = () =>
+    (activePlayer = activePlayer === players[0] ? players[1] : players[0]);
+
+  // loops through to check if any spaces are available
+  let gameOver = false;
+  const playRound = (row, column) => {
+    // checks if there is an empty space
+    if (gameOver === false) {
+      if (gameSpaces[row][column].getValue() === 0) {
+        gameSpaces[row][column].addMarker(activePlayer.marker);
+        board.printBoard();
+        switchPlayerTurn();
+      } else {
+        console.log("Space occupied. Try again!");
+      }
+
+      // checks for winner
+      for (let i = 0; i < winningConditions.length; i++) {
+        let condition = winningConditions[i]
+          .map((cell) => cell.getValue())
+          .join("");
+        if (condition === players[0].marker.repeat(3)) {
+          gameOver = true;
+          console.log(`Player ${players[0].marker} wins!`);
+        } else if (condition === players[1].marker.repeat(3)) {
+          gameOver = true;
+          console.log(`Player ${players[1].marker} wins!`);
+        }
+      }
+
+      if (
+        !gameOver &&
+        gameSpaces.every((row) => row.every((cell) => cell.getValue() !== 0))
+      ) {
+        gameOver = true;
+        console.log("It's a tie!");
+      }
+    } else {
+      console.log("Game Over!");
+    }
+  };
+  // initialize the game
+  const init = () => {
+    board.resetBoard();
+    gameSpaces = board.getBoard();
+    activePlayer = players[0];
+    gameOver = false;
+    winningConditions = [
+      [gameSpaces[0][0], gameSpaces[0][1], gameSpaces[0][2]],
+      [gameSpaces[1][0], gameSpaces[1][1], gameSpaces[1][2]],
+      [gameSpaces[2][0], gameSpaces[2][1], gameSpaces[2][2]],
+      [gameSpaces[0][0], gameSpaces[1][0], gameSpaces[2][0]],
+      [gameSpaces[0][1], gameSpaces[1][1], gameSpaces[2][1]],
+      [gameSpaces[0][2], gameSpaces[1][2], gameSpaces[2][2]],
+      [gameSpaces[0][0], gameSpaces[1][1], gameSpaces[2][2]],
+      [gameSpaces[0][2], gameSpaces[1][1], gameSpaces[2][0]],
+    ];
+  };
+  return { playRound, init };
 }
+
+const game = GameController();
+
+// ROUND 1
+game.playRound(0, 0);
+game.playRound(1, 0);
+game.playRound(0, 1);
+game.playRound(0, 2);
+game.playRound(2, 0);
+game.playRound(1, 1);
+game.playRound(1, 2);
+game.playRound(2, 1);
+game.playRound(2, 2);
