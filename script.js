@@ -90,8 +90,16 @@ function GameController() {
   const switchPlayerTurn = () =>
     (activePlayer = activePlayer === players[0] ? players[1] : players[0]);
 
+  const getActivePlayer = () => activePlayer;
+
+  // tracks the result message for the UI
+  let resultMessage = "";
+  const getResultMessage = () => resultMessage;
+
   // loops through to check if any spaces are available
   let gameOver = false;
+  const getGameOver = () => gameOver;
+
   const playRound = (row, column) => {
     // checks if there is an empty space
     if (gameOver === false) {
@@ -100,7 +108,7 @@ function GameController() {
         board.printBoard();
         switchPlayerTurn();
       } else {
-        console.log("Space occupied. Try again!");
+        resultMessage = "Space occupied. Try again!";
       }
 
       // checks for winner
@@ -110,10 +118,10 @@ function GameController() {
           .join("");
         if (condition === players[0].marker.repeat(3)) {
           gameOver = true;
-          console.log(`Player ${players[0].marker} wins!`);
+          resultMessage = `Player ${players[0].marker} wins!`;
         } else if (condition === players[1].marker.repeat(3)) {
           gameOver = true;
-          console.log(`Player ${players[1].marker} wins!`);
+          resultMessage = `Player ${players[1].marker} wins!`;
         }
       }
 
@@ -122,10 +130,10 @@ function GameController() {
         gameSpaces.every((row) => row.every((cell) => cell.getValue() !== 0))
       ) {
         gameOver = true;
-        console.log("It's a tie!");
+        resultMessage = "It's a tie!";
       }
     } else {
-      console.log("Game Over!");
+      resultMessage = "Game Over! Click restart to play again";
     }
   };
   // initialize the game
@@ -134,6 +142,7 @@ function GameController() {
     gameSpaces = board.getBoard();
     activePlayer = players[0];
     gameOver = false;
+    resultMessage = "";
     winningConditions = [
       [gameSpaces[0][0], gameSpaces[0][1], gameSpaces[0][2]],
       [gameSpaces[1][0], gameSpaces[1][1], gameSpaces[1][2]],
@@ -145,18 +154,77 @@ function GameController() {
       [gameSpaces[0][2], gameSpaces[1][1], gameSpaces[2][0]],
     ];
   };
-  return { playRound, init };
+  return {
+    playRound,
+    getActivePlayer,
+    getBoard: board.getBoard,
+    getResultMessage,
+    getGameOver,
+    init,
+  };
 }
 
-const game = GameController();
+function ScreenController() {
+  const game = GameController();
+  const playerTurnDiv = document.querySelector(".turn");
+  const boardDiv = document.querySelector(".board");
+  const resultsDiv = document.querySelector(".results"); // Will be null if doesn't exist
+  const restartButton = document.querySelector(".restart");
 
-// ROUND 1
-game.playRound(0, 0);
-game.playRound(1, 0);
-game.playRound(0, 1);
-game.playRound(0, 2);
-game.playRound(2, 0);
-game.playRound(1, 1);
-game.playRound(1, 2);
-game.playRound(2, 1);
-game.playRound(2, 2);
+  const updateScreen = () => {
+    // clear the board
+    boardDiv.textContent = "";
+
+    // get the CURRENT board and active player every time this runs
+    const board = game.getBoard();
+    const activePlayer = game.getActivePlayer();
+    const resultMessage = game.getResultMessage();
+
+    // display player's turn OR winner
+    if (game.getGameOver()) {
+      playerTurnDiv.textContent = resultMessage;
+    } else {
+      playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
+    }
+
+    // Only update resultsDiv if it exists
+    if (resultsDiv) {
+      resultsDiv.textContent = resultMessage;
+    }
+
+    // render board squares
+    board.forEach((row, rowIndex) =>
+      row.forEach((cell, columnIndex) => {
+        const cellButton = document.createElement("button");
+        cellButton.classList.add("cell");
+        cellButton.dataset.row = rowIndex;
+        cellButton.dataset.column = columnIndex;
+        const value = cell.getValue();
+        cellButton.textContent = value === 0 ? "" : value;
+        boardDiv.appendChild(cellButton);
+      }),
+    );
+  };
+
+  function clickHandlerBoard(e) {
+    const selectedColumn = e.target.dataset.column;
+    const selectedRow = e.target.dataset.row;
+
+    if (selectedColumn === undefined || selectedRow === undefined) return;
+
+    game.playRound(selectedRow, selectedColumn);
+    updateScreen();
+  }
+
+  function clickHandlerRestart() {
+    game.init();
+    updateScreen();
+  }
+
+  boardDiv.addEventListener("click", clickHandlerBoard);
+  restartButton.addEventListener("click", clickHandlerRestart);
+
+  updateScreen();
+}
+
+ScreenController();

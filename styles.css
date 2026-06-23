@@ -6,9 +6,25 @@
   font-size: 1.5rem;
 }
 
-body {
+.container {
+  width: 100vw;
+  height: 100vh;
+}
+
+.board {
+  display: grid;
+  height: 500px;
+  width: 500px;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  padding: 2px;
+}
+
+.cell {
   display: flex;
-  justify-items: center;
+  justify-content: center;
   align-items: center;
-  background-color: #00ccff;
+  text-align: center;
+  font-size: 2rem;
+  border: 1px solid black;
 }
