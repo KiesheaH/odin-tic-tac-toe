@@ -7,6 +7,7 @@ The primary goal of this project was to apply the module pattern, factory functi
 # 🔗 Live Preview
 
 Live Demo: https://kiesheah.github.io/odin-tic-tac-toe/
+
 Repository: https://github.com/KiesheaH/odin-tic-tac-toe
 
 # 🎯 Project Objective
@@ -18,7 +19,6 @@ This project focused on practicing:
 - Encapsulation and private State
 - Separating game logic from UI rendering
 - DOM manipulation
-- Event handling
 - Game state management
 
 # 🛠️ Built With
