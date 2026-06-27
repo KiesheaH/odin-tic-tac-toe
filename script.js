@@ -35,7 +35,7 @@ function Gameboard() {
     const boardWithCellValues = board.map((row) =>
       row.map((cell) => cell.getValue()),
     );
-    console.log(boardWithCellValues);
+    // console.log(boardWithCellValues);
   };
 
   // initialize the game board
@@ -100,6 +100,9 @@ function GameController() {
   let gameOver = false;
   const getGameOver = () => gameOver;
 
+  let winningCells = [];
+  const getWinningCells = () => winningCells;
+
   const playRound = (row, column) => {
     // checks if there is an empty space
     if (gameOver === false) {
@@ -119,9 +122,11 @@ function GameController() {
         if (condition === players[0].marker.repeat(3)) {
           gameOver = true;
           resultMessage = `Player ${players[0].marker} wins!`;
+          winningCells = winningConditions[i];
         } else if (condition === players[1].marker.repeat(3)) {
           gameOver = true;
           resultMessage = `Player ${players[1].marker} wins!`;
+          winningCells = winningConditions[i];
         }
       }
 
@@ -143,6 +148,7 @@ function GameController() {
     activePlayer = players[0];
     gameOver = false;
     resultMessage = "";
+    winningCells = [];
     winningConditions = [
       [gameSpaces[0][0], gameSpaces[0][1], gameSpaces[0][2]],
       [gameSpaces[1][0], gameSpaces[1][1], gameSpaces[1][2]],
@@ -154,12 +160,14 @@ function GameController() {
       [gameSpaces[0][2], gameSpaces[1][1], gameSpaces[2][0]],
     ];
   };
+
   return {
     playRound,
     getActivePlayer,
     getBoard: board.getBoard,
     getResultMessage,
     getGameOver,
+    getWinningCells,
     init,
   };
 }
@@ -179,12 +187,13 @@ function ScreenController() {
     const board = game.getBoard();
     const activePlayer = game.getActivePlayer();
     const resultMessage = game.getResultMessage();
+    const winningCells = game.getWinningCells();
 
     // display player's turn OR winner
     if (game.getGameOver()) {
       playerTurnDiv.textContent = resultMessage;
     } else {
-      playerTurnDiv.textContent = `${activePlayer.name}'s turn...`;
+      playerTurnDiv.textContent = `Player ${activePlayer.marker}'s turn...`;
     }
 
     // Only update resultsDiv if it exists
@@ -201,7 +210,20 @@ function ScreenController() {
         cellButton.dataset.column = columnIndex;
         const value = cell.getValue();
         cellButton.textContent = value === 0 ? "" : value;
+
+        // add a class based on the marker
+        if (value === "X") {
+          cellButton.classList.add("cell-x");
+        } else if (value === "O") {
+          cellButton.classList.add("cell-o");
+        }
+
         boardDiv.appendChild(cellButton);
+
+        // highlight if this cell is part of the winning condition
+        if (winningCells.includes(cell)) {
+          cellButton.classList.add("winner");
+        }
       }),
     );
   };
