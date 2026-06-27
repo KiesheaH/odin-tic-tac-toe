@@ -6,8 +6,8 @@ The primary goal of this project was to apply the module pattern, factory functi
 
 # 🔗 Live Preview
 
-Live Demo:
-Repository:
+Live Demo: https://kiesheah.github.io/odin-tic-tac-toe/
+Repository: https://github.com/KiesheaH/odin-tic-tac-toe
 
 # 🎯 Project Objective
 
@@ -21,7 +21,7 @@ This project focused on practicing:
 - Event handling
 - Game state management
 
-🛠️ Built With
+# 🛠️ Built With
 
 - HTML
 - CSS3
@@ -29,7 +29,7 @@ This project focused on practicing:
 - Factory Functions
 - IIFE Module Pattern
 
-⚙️ Features
+# ⚙️ Features
 
 - Two player Tic-Tac-Toe gameplay
 - Custom player names
